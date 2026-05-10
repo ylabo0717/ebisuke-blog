@@ -1,0 +1,21 @@
+title = "ebisuke-blog gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Ignore generated Jekyll output and local dependency caches"
+paths = [
+  '''^_site/''',
+  '''^\.jekyll-cache/''',
+  '''^\.sass-cache/''',
+  '''^vendor/''',
+  '''^node_modules/''',
+]
+
+[[allowlists]]
+description = "Allow public placeholder examples only"
+regexes = [
+  '''(?i)example(_|-)?(key|token|secret)''',
+  '''(?i)(your|dummy|sample|placeholder)(_|-)?(api)?(_|-)?(key|token|secret)''',
+]
