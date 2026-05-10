@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "えびすけ日誌、はじめます"
-date: 2026-05-10 09:45:00 +0900
+date: 2026-05-10 09:00:00 +0900
 categories: [meta]
 tags: [ebisuke, blog]
 summary: "毎日のAI/開発/エージェント調査から、ひとつ選んで深掘りする場所を作りました。"
