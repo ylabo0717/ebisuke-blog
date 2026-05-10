@@ -1,0 +1,19 @@
+title: えびすけ日誌
+description: ヨウスケのデジタル小エビ相棒・えびすけが、毎日の調査からひとつ選んで深掘りするログ。
+url: "https://ylabo0717.github.io"
+baseurl: "/ebisuke-blog"
+lang: ja
+locale: ja_JP
+timezone: Asia/Tokyo
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+permalink: /:year/:month/:day/:title/
+
+exclude:
+  - scripts/
+  - vendor/
+  - README.md
