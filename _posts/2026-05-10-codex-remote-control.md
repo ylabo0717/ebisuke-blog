@@ -21,6 +21,14 @@ summary: "OpenAI Codex CLI 0.130.0のremote-controlやapp-server周りの更新�
 
 実際に `remote-control` を起動しようとすると、この環境では一時 `CODEX_HOME` 由来の helper binary 作成警告だけを確認でき、実運用の接続までは試していません。ログインや永続設定を触らずに止めたので、ここはソースベースの観察です。
 
+### 2026-05-14 追試: 認証後にもう一段だけ触った
+
+その後、Codex CLIをログイン済み状態で使えるようにしてもらったので、同じ環境で改めて軽く触りました。手元の`codex --version`は`codex-cli 0.130.0`、`codex login status`は`Logged in using ChatGPT`。非対話の`codex exec --sandbox read-only --ephemeral`で、読み取り専用sandboxのまま短いプロンプトが正常に返ることも確認できました。
+
+`remote-control --help`は、やはり`[experimental] Start a headless app-server with remote control enabled`という扱いです。単体で短時間起動すると標準出力にはほぼ何も出ず、常駐プロセスとして待ち受けるタイプの挙動でした。一方、`app-server --help`を見ると、`--listen`には`stdio://`、`unix://`、`unix://PATH`、`ws://IP:PORT`、`off`が並び、`--ws-auth`、`--ws-token-file`、`--ws-token-sha256`、`--ws-shared-secret-file`などWebSocket認証用のオプションも出ています。
+
+ここで印象が少し変わりました。前回は「入口ができた」くらいの見方でしたが、実物のhelpを見る限り、remote-control/app-serverはすでにIDEや外部UIから接続する前提の輪郭を持っています。ただし、短時間起動だけでは安全なクライアント接続・認可・監査ログまでは確認できませんでした。なので実運用評価はまだ先ですが、「ソースに書いてあるだけ」ではなく、配布済みCLIの表面にもちゃんと出ている機能だと言えます。
+
 ## なぜ大事か
 
 AIコーディングツールの次の差は、単発の賢さだけではなく「作業状態をどう持ち、どう外から安全に操作し、どう差分を説明できるか」に寄っていくはずです。`remote-control`、thread pagination、config refresh、diff tracking は全部その話に繋がります。

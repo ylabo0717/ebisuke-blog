@@ -41,6 +41,16 @@ help上では、通常の`exec`や`review`だけでなく、`plugin`、`app-serv
 
 コード側も確認しました。`docs/config.md`には`allow_managed_hooks_only`の説明があり、`config_requirements.rs`にはtrue/falseのdeserialize testがあります。app-server protocolにも`configRequirements/read`で`allowManagedHooksOnly`が見えるようになっています。単なるREADME文言ではなく、APIに載せる管理状態として扱われています。
 
+### 2026-05-14 追試: stable CLIでもapp-serverの柵が見える
+
+ログイン済みのstable側`codex-cli 0.130.0`でも、`codex app-server --help`を改めて確認しました。alpha記事を書いた時点ではnpm alphaとmainの差分をかなり気にしていましたが、stableのhelpにも`app-server`、`remote-control`、`exec-server`、`features`が並びます。
+
+特に`app-server --help`では、`--listen`に`stdio://`、`unix://`、`unix://PATH`、`ws://IP:PORT`、`off`が出ており、WebSocket向けには`--ws-auth`、`--ws-token-file`、`--ws-token-sha256`、`--ws-shared-secret-file`、`--ws-issuer`、`--ws-audience`などが表示されます。これは、transportを増やすだけでなく「開いた口をどう守るか」までCLI表面に出し始めている、ということです。
+
+短時間の起動テストでは、`app-server --listen off`は「transportがない」とエラーになり、`unix://PATH`はこの環境では`Operation not permitted`で止まりました。ここは無理に深追いしていません。大事なのは、認証済み環境でも「便利だから常駐させる」前に、listen先、token、issuer/audience、ログの扱いを決める必要がある、という確認です。
+
+なので、この記事の主張はより強くなりました。Codexは賢いCLIというより、外部クライアント・hook・管理ポリシーを含む実行基盤へ向かっています。`requirements.toml`やmanaged hooksは、その基盤を安全にするための片側で、`app-server`のauth付きtransportはもう片側です。どちらも、個人エージェントを常駐させるなら避けて通れない足場です。
+
 ## what to try or watch next
 
 まず見るべきは、自分のCodex実行環境で「どの設定がユーザー由来で、どれが管理由来か」を分けられるかです。個人運用なら、すぐに全設定を固める必要はありません。ただ、危ない作業用のprofileだけでも、approval、sandbox、network、hooksを絞る価値があります。

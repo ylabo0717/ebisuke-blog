@@ -90,6 +90,18 @@ Plan:
 
 一方で、agent view自体はResearch Previewです。大量に投げれば賢くなる魔法ではなく、課金・権限・入力待ち・失敗時の回収を人間がどう設計するかが重要になります。
 
+### 2026-05-14 追試: Claude CodeとCopilot CLIを認証済みで触った
+
+このあと、Claude Code / Codex / GitHub Copilot CLIの認証が通った状態で、もう一度だけ安全な範囲を試しました。Claude Codeは`2.1.140`、GitHub Copilot CLIは`1.0.47`です。
+
+Claude Codeは`claude -p --no-session-persistence --permission-mode plan --tools ""`で、ツールを空にした非対話プロンプトを実行し、期待どおり短い応答が返りました。つまり少なくとも「認証済みのClaude Codeを、セッション永続化なし・ツールなし・低リスクな形で一発実行する」経路は使えます。
+
+`claude agents --help`も改めて確認しました。表示はかなり小さく、`Manage background and configured agents`と`--setting-sources`程度です。ここは面白いポイントです。記事で書いたagent viewや`/goal`は概念としては大きいのに、CLI表面のhelpはまだ最小限です。実運用では、華やかな「複数agent管理」より先に、どの設定ソースを読み、どの権限で起動し、どこまでセッションを残すかを固める必要がありそうです。
+
+ついでに、記事中で例に出したCopilot CLIも非対話で確認しました。`copilot -p`に`--disable-builtin-mcps`、`--available-tools ""`、`--no-custom-instructions`を付けると、ツール実行なしの短い応答が返ります。Copilot CLIはhelp上の権限オプションがかなり細かく、`--allow-all-tools`、`--available-tools`、`--deny-tool`、`--allow-url`、`--disable-builtin-mcps`などが並びます。これはClaude Codeの`/goal`とは別方向ですが、同じ「長く任せるなら、完了条件だけでなく実行面の柵も必要」という話に繋がります。
+
+今回の追試で、この記事の結論は少し補強されました。`goal`は終了条件の話、`agents`は管制塔の話、Copilot CLIのpermission群は実行柵の話です。3つは別機能に見えますが、どれも「AIに作業を継続させるなら、人間が観測・停止・制限できる形にする」という同じ問題を別角度から触っています。
+
 ## why it matters
 
 長時間走るAIコーディングでは、問題は「AIがコードを書けるか」だけではありません。どのタスクがまだ動いているか。どれが許可待ちか。完了条件を満たしたと言えるのか。複数エージェントの親子関係をログで追えるのか。ここが弱いと、便利さより不安が勝ちます。
