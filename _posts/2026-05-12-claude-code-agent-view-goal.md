@@ -90,17 +90,30 @@ Plan:
 
 一方で、agent view自体はResearch Previewです。大量に投げれば賢くなる魔法ではなく、課金・権限・入力待ち・失敗時の回収を人間がどう設計するかが重要になります。
 
-### 2026-05-14 追試: Claude CodeとCopilot CLIを認証済みで触った
+### 2026-05-14 追試: 小さい実装タスクを実際に投げた
 
-このあと、Claude Code / Codex / GitHub Copilot CLIの認証が通った状態で、もう一度だけ安全な範囲を試しました。Claude Codeは`2.1.140`、GitHub Copilot CLIは`1.0.47`です。
+このあと、Claude Code / Codex / GitHub Copilot CLIの認証が通った状態で、単なる`--help`確認ではなく、小さい壊れたNode.jsパッケージを作って実装タスクを投げました。
 
-Claude Codeは`claude -p --no-session-persistence --permission-mode plan --tools ""`で、ツールを空にした非対話プロンプトを実行し、期待どおり短い応答が返りました。つまり少なくとも「認証済みのClaude Codeを、セッション永続化なし・ツールなし・低リスクな形で一発実行する」経路は使えます。
+Claude Codeには、`calculateScore(events)`のテストが落ちる小さなrepoを渡しました。最初の実装は`task`を数えるだけで、テスト側は「完了taskは2点、連続完了streakにボーナス、bugはminor/majorで減点、未完了taskでstreak終了」という挙動を期待しています。プロンプトでは先頭に`/goal`を置き、完了条件をこう指定しました。
 
-`claude agents --help`も改めて確認しました。表示はかなり小さく、`Manage background and configured agents`と`--setting-sources`程度です。ここは面白いポイントです。記事で書いたagent viewや`/goal`は概念としては大きいのに、CLI表面のhelpはまだ最小限です。実運用では、華やかな「複数agent管理」より先に、どの設定ソースを読み、どの権限で起動し、どこまでセッションを残すかを固める必要がありそうです。
+```text
+/goal Fix this tiny scoring package so npm test passes.
+Completion conditions:
+- Understand the intended scoring rule from the failing test.
+- Update implementation only as needed.
+- Run npm test and do not stop until it passes or you hit a real blocker.
+- Report the changed file and the test result.
+```
 
-ついでに、記事中で例に出したCopilot CLIも非対話で確認しました。`copilot -p`に`--disable-builtin-mcps`、`--available-tools ""`、`--no-custom-instructions`を付けると、ツール実行なしの短い応答が返ります。Copilot CLIはhelp上の権限オプションがかなり細かく、`--allow-all-tools`、`--available-tools`、`--deny-tool`、`--allow-url`、`--disable-builtin-mcps`などが並びます。これはClaude Codeの`/goal`とは別方向ですが、同じ「長く任せるなら、完了条件だけでなく実行面の柵も必要」という話に繋がります。
+実行は`claude -p --no-session-persistence --permission-mode bypassPermissions`です。結果として、Claude Codeは`score.js`を書き換え、`node --test`で2件のテストが通る状態まで持っていきました。生成された実装は、streakを内部状態として持ち、bugや未完了taskでstreakを閉じ、最後に残ったstreakを加算する形です。少なくとも「失敗テストを読んで、実装を直し、テストで完了を確認する」コーディングエージェントとしてはちゃんと動きました。
 
-今回の追試で、この記事の結論は少し補強されました。`goal`は終了条件の話、`agents`は管制塔の話、Copilot CLIのpermission群は実行柵の話です。3つは別機能に見えますが、どれも「AIに作業を継続させるなら、人間が観測・停止・制限できる形にする」という同じ問題を別角度から触っています。
+ただし、ここで大事な違和感もありました。非対話の`-p`で`/goal`を使うと、実装とテスト成功までは進んだのに、プロセスがきれいに終了せず、最終報告も返ってきませんでした。こちらで別プロセスから`git status`と`node --test`を確認したところ、作業自体は完了していました。つまり今回の使い方では、`/goal`が「完了条件として効いている」手応えはある一方で、非対話ジョブとしての終了制御・最終報告はまだ少し危ういです。
+
+この体験で、`/goal`への見方は少し具体的になりました。概念としては正しい。テストが通るまで粘る、という用途にも合っている。でも、cronやCIのような非対話実行にそのまま組み込むなら、「完了したのにプロセスが残る」「最後の要約が取れない」ケースを監視側で扱う必要があります。`goal`は魔法の完了保証ではなく、実行ハーネスとセットで評価すべき機能です。
+
+比較として、Codex CLI 0.130.0とGitHub Copilot CLI 1.0.47にも別の小型kataを投げました。Codexには`parseFlags(argv)`を、Copilotには`summarizeTodos(todos)`を直させました。どちらも失敗テストを読み、実装だけを変更し、`npm test`成功まで到達して、変更ファイルとテスト結果を返しました。Codexは実行ログとdiffがかなり明示的で、Copilotは作業ログが簡潔です。Claude Codeは今回、実装力そのものより「goal付きで長く走らせる時の終了制御」が評価ポイントになりました。
+
+なので、この記事の結論は少し修正したいです。`goal`はplanの未完成部分に名前を付けたもの、という見方は変わりません。ただし実際に使うと、価値は「賢い指示文」ではなく、テストや完了条件を外部から検査できる小さな作業にあります。逆に、完了検査をCLIの内側だけに任せると、今回のように「直っているがプロセスが戻らない」状態を人間が見に行くことになります.
 
 ## why it matters
 
