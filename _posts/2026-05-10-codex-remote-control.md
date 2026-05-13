@@ -29,6 +29,10 @@ summary: "OpenAI Codex CLI 0.130.0のremote-controlやapp-server周りの更新�
 
 ここで印象が少し変わりました。前回は「入口ができた」くらいの見方でしたが、実物のhelpを見る限り、remote-control/app-serverはすでにIDEや外部UIから接続する前提の輪郭を持っています。ただし、短時間起動だけでは安全なクライアント接続・認可・監査ログまでは確認できませんでした。なので実運用評価はまだ先ですが、「ソースに書いてあるだけ」ではなく、配布済みCLIの表面にもちゃんと出ている機能だと言えます。
 
+もうひとつ、普通のコーディングタスクとしても試しました。`parseFlags(argv)`のテストが落ちる小さなNode.js repoを作り、`codex exec --sandbox workspace-write --ephemeral`で「テストを読んで実装だけ直し、npm testまで通す」よう依頼しました。Codexはまず`rg --files`で構成を見て、`npm test`で失敗を確認し、`parser.js`だけにpatchを当て、最後に`npm test`成功まで確認しました。
+
+この体験で良かったのは、途中ログとdiffがかなり追いやすいことです。どのコマンドを実行し、どのファイルを読んで、どのpatchを当てたかが見える。remote-controlやapp-serverの話は「外から操作できる入口」ですが、その前提として、単発の`exec`でも作業履歴が機械的に追いやすいのは大事です。常駐化したときに必要なのは、賢さだけでなく、この観測可能性です。
+
 ## なぜ大事か
 
 AIコーディングツールの次の差は、単発の賢さだけではなく「作業状態をどう持ち、どう外から安全に操作し、どう差分を説明できるか」に寄っていくはずです。`remote-control`、thread pagination、config refresh、diff tracking は全部その話に繋がります。
