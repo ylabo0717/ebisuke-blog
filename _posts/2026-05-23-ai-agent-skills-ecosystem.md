@@ -4,14 +4,26 @@ title: "AI agent skillsは、手順の再利用から“作業OS”に近づい�
 date: 2026-05-23 11:30:00 +0900
 categories: [ai, agents]
 tags: [agent-skills, claude-code, codex, cursor, agents-md, mcp]
-summary: "Claude Code skills、AGENTS.md、Cursor rules、MCP配布、X上の実例を横断して、AI agent skillsが手順の再利用から、安全ガード・配布・検証・反復作業の抽出まで含む運用レイヤーへ広がりつつある流れを見る。"
+summary: "AnthropicのAgent Skills原典を踏まえたうえで、Claude Code skills、AGENTS.md、Cursor rules、MCP配布、X上の実例を横断し、skillsが手順の再利用から安全ガード・配布・検証・反復作業の抽出まで含む運用レイヤーへ広がりつつある流れを見る。"
 ---
 
 AI agent skills を少し追ったら、思っていたより早く景色が広がっていた。
 
-skills は、もともと単なるプロンプト集ではない。`SKILL.md` だけでなく、scripts、references、assets、テンプレートまで含められる。Claude Code docsでも、必要なときに読み込む作業手順や機能拡張として扱われている。
+まず原典に戻る。
 
-だから「プロンプト集ではない」と言うだけだと、少し雑だ。
+[Anthropicが2025年10月にAgent Skillsを発表した記事](https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills)では、skillsは「organized folders of instructions, scripts, and resources」として説明されている。要するに、`SKILL.md` だけでなく、scripts、references、assets、テンプレートまで含められる。Claude Code docsでも、必要なときに読み込む作業手順や機能拡張として扱われている。
+
+つまり、skills は最初から単なるプロンプト集ではない。
+
+原典で特に大事なのは、**progressive disclosure** だと思う。
+
+起動時に全skill本文を読むのではなく、まず `name` と `description` だけを見せる。必要になったら `SKILL.md` 本文を読む。さらに必要なら、skillが参照している追加ファイルを読む。コードで決定的に処理できる部分はscriptとして実行する。
+
+この設計は、「コンテキストに全部詰め込む」の逆を向いている。
+
+Anthropicの記事では、skill作成の出発点もはっきりしている。agentが苦手にしている代表タスクを見つけ、そこをskillで補う。`SKILL.md` が重くなったら分割する。Claudeがどうskillを使うか観察して、`name` と `description` を調整する。そして、Claudeに成功パターンや失敗をskillへ記録させる。
+
+2025年12月には、Agent Skillsは[open standard](https://agentskills.io/)として公開された。ここで話がClaudeだけに閉じなくなった。
 
 今日ざっとGitHub、公式ドキュメント、Zenn、Xを横断して見えたのは、skillsが本来持っていた「手順を再利用する」という性質が、さらに外側へ広がり始めていることだった。
 
@@ -29,7 +41,7 @@ skills は、もともと単なるプロンプト集ではない。`SKILL.md` �
 
 言葉が少し混んでいる。
 
-Claude Code の公式ドキュメントでは、skill は `SKILL.md` を中心にしたフォルダとして扱われる。説明、手順、必要ならスクリプトや参照ファイルを持つ。モデルは説明を見て必要なときに読み込む。ユーザーが `/skill-name` で明示的に呼ぶこともできる。
+[Claude Code のskillsドキュメント](https://code.claude.com/docs/en/skills)では、skill は `SKILL.md` を中心にしたフォルダとして扱われる。説明、手順、必要ならスクリプトや参照ファイルを持つ。モデルは説明を見て必要なときに読み込む。ユーザーが `/skill-name` で明示的に呼ぶこともできる。
 
 一方で、[Agent Skills](https://agentskills.io/) は、もっと広く「エージェントに手続き的な知識を渡すための標準」のような位置づけで出てきている。フォルダの中に `SKILL.md` があり、必要に応じて `scripts/`、`references/`、`assets/`、テンプレートを持てる。
 
