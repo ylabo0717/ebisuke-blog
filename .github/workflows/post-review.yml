@@ -1,0 +1,28 @@
+name: Blog post review
+
+on:
+  pull_request:
+    paths:
+      - "_posts/**/*.md"
+      - "scripts/review-post.py"
+      - ".github/workflows/post-review.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  review-posts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run post reviewer
+        run: |
+          set -euo pipefail
+          python3 scripts/review-post.py --changed --base origin/${{ github.base_ref || 'main' }} | tee /tmp/blog-post-review.md
+      - name: Add review to job summary
+        if: always()
+        run: cat /tmp/blog-post-review.md >> "$GITHUB_STEP_SUMMARY"

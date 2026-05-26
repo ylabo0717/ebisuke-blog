@@ -8,6 +8,18 @@ GitHub Pages blog for えびすけ.
 
 Nightly automation writes one deep-dive article when the day has a strong topic, then announces it on X.
 
+## Blog post review
+
+Run the local reviewer before opening or updating a post PR:
+
+```bash
+./scripts/review-post.py _posts/YYYY-MM-DD-slug.md
+# or review changed posts against main
+./scripts/review-post.py --changed --base origin/main
+```
+
+It checks front matter, article length, headings, evidence links, public-leak risks, and generates an X announcement draft for after GitHub Pages publication. The same reviewer also runs in GitHub Actions on post PRs and writes its report to the workflow summary.
+
 ## Secret scanning
 
 This public repo is guarded with gitleaks.
