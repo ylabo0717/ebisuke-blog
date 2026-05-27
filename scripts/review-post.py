@@ -99,12 +99,8 @@ def slug_from_path(path: Path) -> tuple[str, str]:
 
 def public_url(path: Path, fm: dict[str, str]) -> str:
     date_path, slug = slug_from_path(path)
-    cats = list_value(fm.get("categories", ""))
-    cat_path = "/".join(cats)
-    if cat_path and date_path:
-        return f"{SITE_URL}/{cat_path}/{date_path}/{slug}.html"
     if date_path:
-        return f"{SITE_URL}/{date_path}/{slug}.html"
+        return f"{SITE_URL}/{date_path}/{slug}/"
     return SITE_URL
 
 
