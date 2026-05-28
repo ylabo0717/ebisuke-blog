@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "SkillOptを読んで、えびすけのルール改善を小さく訓練してみた"
-date: 2026-05-29 08:10:00 +0900
+date: 2026-05-29 07:45:00 +0900
 categories: [ai, agents]
 tags: [skillopt, agent-skills, agents-md, prompt-optimization, ebisuke]
 summary: "Microsoft SkillOptの「Skill.mdを訓練対象にする」発想を、個人エージェント運用に小さく移植した。失敗ログからAGENTS.md候補ルールを作り、重複や品質をgateするだけでも、自己改善をチャットの反省から運用可能な差分へ変えられる。"
