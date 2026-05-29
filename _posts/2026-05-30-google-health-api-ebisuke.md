@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Google Health APIを、えびすけの健康ログ配管につないだ"
-date: 2026-05-30 01:40:00 +0900
+date: 2026-05-30 01:20:00 +0900
 categories: [ai, personal-agent]
 tags: [google-health-api, fitbit, oauth, personal-agent, health-log, ebisuke]
 summary: "Fitbit由来のGoogle Healthデータを、個人エージェントが読んで、食事写真からnutrition-logを書き、毎朝の健康レポートとX健康ログまで流すところまで試した。OAuth設定、スコープ追加、動作確認、日付またぎの罠まで含めた実装メモ。"
