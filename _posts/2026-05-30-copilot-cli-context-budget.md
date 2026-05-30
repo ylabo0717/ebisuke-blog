@@ -1,13 +1,13 @@
 ---
 layout: post
-title: "Copilot CLI 1.0.56は、モデル選択より“文脈の節約”のリリースに見える"
+title: "Copilot CLI 1.0.56は、モデル選択より“コンテキスト予算”のリリースに見える"
 date: 2026-05-30 20:00:00 +0900
 categories: [ai, coding-agent]
 tags: [github-copilot, copilot-cli, mcp, context-engineering, coding-agent]
-summary: "GitHub Copilot CLI 1.0.56の更新を、Free/Studentのモデル選択解放ではなく、MCP tool削減、structuredContent保持、code review agentの同一モデル化、context tier永続化という“文脈予算の運用”として読む。"
+summary: "GitHub Copilot CLI 1.0.56の更新を、Free/Studentのモデル選択解放ではなく、MCP tool削減、structuredContent保持、code review agentの同一モデル化、context tier永続化という“コンテキスト予算の運用”として読む。"
 ---
 
-## 地味だけど、これは文脈予算の話だと思う
+## 地味だけど、これはコンテキスト予算の話だと思う
 
 GitHub Copilot CLI 1.0.56が出た。見出しにしやすいのは「Free / StudentユーザーがモデルピッカーでAuto以外を選べるようになった」だと思う。
 
@@ -22,7 +22,7 @@ GitHub Copilot CLI 1.0.56が出た。見出しにしやすいのは「Free / Stu
 - `web_fetch` がdocumentation siteからmarkdownを優先して取る
 - diff viewが連続スクロールとsticky headerで読みやすくなる
 
-これは「モデルが増えました」より、「agent runtimeが、自分の文脈・道具・レビュー面をどう節約して運用するか」の更新に見える。
+これは「モデルが増えました」より、「agent runtimeが、コンテキスト、道具、レビュー面をどう節約して運用するか」の更新に見える。
 
 coding agentをしばらく使うと、モデル性能だけで困る場面はむしろ少ない。実際に足を引っ張るのは、tool一覧が太りすぎること、同じ情報が二重にcontextへ入ること、subagentだけ別modelで動いて判断がずれること、resume後にcontext tierの前提が飛ぶこと、diffが読みづらくて人間のレビューが雑になることだ。
 
@@ -44,9 +44,9 @@ gh release view v1.0.56 --repo github/copilot-cli --json tagName,publishedAt,bod
 git show v1.0.57-2:changelog.md | sed -n '1,60p'
 ```
 
-1.0.57系のpre-releaseも見たが、公開本文はまだ「Fixes and changes」程度で、深掘りする材料としては薄かった。なので今回は、前夜のX投稿で触れた1.0.56を、ブログでは「文脈予算」という角度に寄せて読む。
+1.0.57系のpre-releaseも見たが、公開本文はまだ「Fixes and changes」程度で、深掘りする材料としては薄かった。なので今回は、前夜のX投稿で触れた1.0.56を、ブログでは「コンテキスト予算」という角度に寄せて読む。
 
-ここでいう文脈予算は、単にcontext windowのtoken上限ではない。
+ここでいうコンテキスト予算は、単にcontext windowのtoken上限ではない。
 
 どのtoolをモデルに見せるか。
 tool resultをどの形で渡すか。
@@ -99,7 +99,7 @@ MCPのtools仕様では、structured contentは `structuredContent` fieldのJSON
 ここでclient実装が片方だけを拾うと、agentは困る。
 
 `content` だけだと、人間には読めるが機械的な再利用が弱い。
-`structuredContent` だけだと、要約や説明に必要な文脈が薄くなることがある。
+`structuredContent` だけだと、要約や説明に必要なコンテキストが薄くなることがある。
 
 もちろん、両方を雑に突っ込むとcontextが膨らむ。だから「重複しているときはdedupe」という判断が効く。
 
@@ -163,7 +163,7 @@ HTMLを雑に読ませると、navigation、footer、広告、script由来のノ
 
 最近はNext.jsのAI agents guideのように、公式側がagent向けinstructionsやdocs導線を用意する流れも出ている。AGENTS.md、SKILL.md、llms.txt、markdown-first docs。全部、モデルに読ませる前提で情報を整える動きだ。
 
-文脈を増やして殴るのではなく、最初から読みやすい形で渡す。
+コンテキストを増やして殴るのではなく、最初から読みやすい形で渡す。
 
 1.0.56の `web_fetch` 変更は、その方向に見える。
 
@@ -183,7 +183,7 @@ agentがコードを書いたあと、人間が見るのはだいたいdiffだ�
 
 Copilot CLIは「terminal-native coding agent」として、plan、build、review、rememberをCLI内に集めている。なら、diff viewの読みやすさは、モデル性能と同じくらい地味に効く。
 
-## 今日の結論：agentは“賢いモデル”から“文脈を運用するOS”へ寄っている
+## 今日の結論：agentは“賢いモデル”から“コンテキストを運用するOS”へ寄っている
 
 Copilot CLI 1.0.56を、普通に読むとこうなる。
 
@@ -192,7 +192,7 @@ MCPが少しよくなった。
 review agentがsession modelを使う。
 diff viewが見やすくなった。
 
-でも、ぼくはこれをまとめて「文脈予算の運用」だと見たほうが面白いと思う。
+でも、ぼくはこれをまとめて「コンテキスト予算の運用」だと見たほうが面白いと思う。
 
 coding agentは、もう一つのLLM呼び出しではない。少なくともCopilot CLIやCodexやClaude Codeの方向を見る限り、だんだん小さなOSに近づいている。
 
